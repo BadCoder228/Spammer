@@ -17,10 +17,6 @@ step 1. input the information!
     
       "token": "ur bot token",
     
-      "path": "path/to/databases/folder/",
-    
-      "path_to_index": "path/to/index/folder/",
-    
       "atack": 0,          <-- dont touch dis.
     
       "url": "your tERMS oF uSE link",
