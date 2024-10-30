@@ -1,11 +1,26 @@
-import string,random,json,sqlite3,folium,os,phonenumbers as ph,telebot as t
+import string
+import random
+import json
+import sqlite3
+import folium
+import os
+import phonenumbers as ph
+import telebot as t
+
 from bot_funcs.main_of_da_funcs import atack_function
 from telebot import types as ty
-with open('config.json') as file:config = json.load(file)
-class cnfg: #потаму чта я могу классы в знерщт
-    def __init__(i,token,path,index_path,idq,uRl):i.token = token;i.path = path; i.ipath = index_path;i.id =idq; i.url = uRl
-    def retrun(i):return{'tk':i.token,'ph':i.path, 'ip':i.ipath, 'url':i.url, 'id':i.id}
-phone_number ={};current_promocode=None;uid_contact={};got_id = [];ql = {};uid_bool = {};al = {};dicT=cnfg(config.get('token'),config.get('path'), config.get('path_to_index'),config.get('tg_id'),config.get('url'));dicT_=dicT.retrun();bot = t.TeleBot(dicT_.get('tk'));path=dicT_.get('path');index = dicT_.get('ip');my_id=dicT_.get('id');url=dicT_.get('url')
+
+
+with open('config.json') as file:
+    config = json.load(file)
+phone_number ={}
+current_promocode=None
+uid_contact={}
+got_id = []
+ql = {}
+uid_bool = {}
+al = {}
+bot = t.TeleBot(config.get('tk'));path=dicT_.get('path');index = dicT_.get('ip');my_id=dicT_.get('id');url=dicT_.get('url')
 @bot.message_handler(commands=['gen_promo'])
 def gen_promo(message):
     if message.from_user.id == my_id:bot.delete_message(message_id=message.message_id,chat_id=message.chat.id);global current_promocode;sym = list(string.ascii_letters+string.digits);random.shuffle(sym);current_promocode=''.join(sym[:9]);bot.send_message(chat_id=message.chat.id,text=f'🎟 Current promocode is: `{current_promocode}`', parse_mode='MARKDOWN',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
