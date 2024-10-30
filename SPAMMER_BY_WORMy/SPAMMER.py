@@ -26,7 +26,6 @@ contact_message = {}
 al = {}
 bot = t.TeleBot(config.get('token'))
 path = str(os.path.abspath('SPAMMER_BY_WORMy/databases').replace("\\","/") + "/")
-print(path)
 index = str(os.path.abspath('SPAMMER_BY_WORMy/').replace("\\","/") + "/")
 my_id = config.get('tg_id')
 url = config.get('url')
