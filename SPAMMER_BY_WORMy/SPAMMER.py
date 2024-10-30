@@ -7,7 +7,7 @@ import os
 import phonenumbers as ph
 import telebot as t
 
-#from bot_funcs.main_of_da_funcs import atack_function
+from bot_funcs.main_of_da_funcs import atack_function
 from telebot import types as ty
 
 
@@ -212,7 +212,7 @@ def laps_check(message):
                 data_to_insert['atack'] = 1
                 change_data(data_to_insert)
                 bot.edit_message_text('✅ Success!\n\n🚀 The attack has already been launched, you may now return to main menu',chat_id=message.chat.id, message_id=spam_message.message_id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
-                #atack_function(phone_number.get(message.from_user.id), int(message.text))
+                atack_function(phone_number.get(message.from_user.id), int(message.text))
                 data_to_insert['atack'] = 0
                 change_data(data_to_insert)
         
