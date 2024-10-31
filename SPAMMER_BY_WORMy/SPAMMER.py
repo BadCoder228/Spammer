@@ -102,7 +102,7 @@ def callback(call):
         cancel = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]])
         main_keyboard = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🎯 Spam',callback_data='spam'),ty.InlineKeyboardButton(text='📱 Data by users',callback_data='get_data')],[ty.InlineKeyboardButton(text='🔑 Subscription',callback_data='sub'),]])
         bot.answer_callback_query(call.id)
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='🛎 Spammer by wormyINC is ready to work!',reply_markup=main_keyboard)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=f'🎈 Your current destination\'s main menu\n\n🔋 Your status is {uid_bool.get(call.from_user.id)}',reply_markup=main_keyboard)
     
     elif call.data == 'spam':
         
