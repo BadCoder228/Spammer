@@ -14,19 +14,18 @@ from telebot import types as ty
 with open('config.json') as file:
     config = json.load(file)
     
-phone_number ={}
-current_promocode=None
-uid_contact={}
 got_id = []
+ql = {}
+phone_number ={}
+uid_contact = {}
+uid_bool = {}
 spam_message_ = {}
 data_message_ = {}
-ql = {}
 promo_message_ = {}
-uid_bool = {}
-location_message_ = {}
 after_purchase_ = {}
 contact_message = {}
-al = {}
+location_message_ = {}
+current_promocode = None
 bot = t.TeleBot(config.get('token'))
 path = str(os.path.abspath('SPAMMER_BY_WORMy/databases').replace("\\","/") + "/")
 index = str(os.path.abspath('SPAMMER_BY_WORMy/index').replace("\\","/") + "/")
@@ -97,7 +96,12 @@ def callback(call):
     global cancel
 
     if call.data == 'main_menu':
-        
+
+        for dict_ in [phone_number, spam_message_,data_message_,promo_message_,location_message_,after_purchase_,contact_message]:
+            try:
+                dict_.pop(call.from_user.id)
+            except:
+                continue
         bot.clear_step_handler_by_chat_id(call.message.chat.id)
         cancel = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]])
         main_keyboard = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🎯 Spam',callback_data='spam'),ty.InlineKeyboardButton(text='📱 Data by users',callback_data='get_data')],[ty.InlineKeyboardButton(text='🔑 Subscription',callback_data='sub'),]])
@@ -177,6 +181,7 @@ def promo_input(message):
     else:
         bot.edit_message_text(chat_id=message.chat.id, message_id=promo_message_.get(message.from_user.id).message_id, text='✖️ Promocode not found!',reply_markup=cancel)
     promo_message_.pop(message.from_user.id)
+    after_purchase_.pop(message.from_user.id)
 
 def phone_number_check(message):
     phone_number.update([(message.from_user.id , message.text)])
