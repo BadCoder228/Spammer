@@ -40,14 +40,14 @@ def gen_promo(message):
         sym = list(string.ascii_letters+string.digits)
         random.shuffle(sym)
         current_promocode=''.join(sym[:9])
-        bot.send_message(chat_id=message.chat.id,text=f'🎟 Current promocode is: `{current_promocode}`', parse_mode='MARKDOWN',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
+        bot.send_message(chat_id=message.chat.id,text=f'🎟 Current promocode is: `{current_promocode}`', parse_mode='MARKDOWN',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (until you go to main menu)',callback_data='del_data')]]))
 
 
 @bot.message_handler(commands=['start'])
 def _init_(message):
     try:
         if message.from_user.id in got_id:
-            bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))  
+            bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (until you go to main menu)',callback_data='del_data')]]))  
         else:
             got_id.append(message.from_user.id)
             contact_keyboard = ty.ReplyKeyboardMarkup(True,True,input_field_placeholder='📱 Waiting for your phone number.').add(ty.KeyboardButton('📱 Give my phone number',request_contact=True))
@@ -144,7 +144,7 @@ def callback(call):
 
     elif call.data =='pay_by_stars':
         bot.answer_callback_query(call.id)
-        bot.send_invoice(call.message.chat.id,title="⭐️ Buy subscription",description="🌀 This subscription will give you access to the main bot funcs!",invoice_payload="flash_мне_в_очко",provider_token="",  currency="XTR",prices=[ty.LabeledPrice(label='⭐️ Purchase for 109.(9) stars',amount=110)], reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='⭐️ Purchase for 109.(9) stars', pay=True),ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
+        bot.send_invoice(call.message.chat.id,title="⭐️ Buy subscription",description="🌀 This subscription will give you access to the main bot funcs!",invoice_payload="flash_мне_в_очко",provider_token="",  currency="XTR",prices=[ty.LabeledPrice(label='⭐️ Purchase for 109.(9) stars',amount=110)], reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='⭐️ Purchase for 109.(9) stars', pay=True),ty.InlineKeyboardButton(text='🗑 Delete message (until you go to main menu)',callback_data='del_data')]]))
     
     elif call.data == 'pay_by_promo':                                                                                                                                                                                                                                                                                                             # ^ bruh my humor...
         bot.answer_callback_query(call.id)
@@ -248,7 +248,7 @@ def data_check(message):
         
         with open(f'{index}{data[2]}.html','rb') as send:
             bot.edit_message_text('✅ Success! You may now return to main menu.',message_id=data_message_.get(message.from_user.id).message_id,chat_id=message.chat.id, reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 To main menu',callback_data='main_menu')]]))
-            file_=bot.send_document(chat_id=message.chat.id,document=send,caption=f'☑️ User found! Their phone number:{data[2]}', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (can be deleted in 2 days)',callback_data='del_data')]]))
+            file_=bot.send_document(chat_id=message.chat.id,document=send,caption=f'☑️ User found! Their phone number:{data[2]}', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message (until you go to main menu)',callback_data='del_data')]]))
             send.close()
     
     else:
