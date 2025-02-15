@@ -9,6 +9,8 @@ And welcome to spammer code by Wormy!
 
 [Bad Eng btw even if this guide is written in eng ._.]
 
+UPDATE!!!! THIS IS KINDA ILLEGAL I GUESS, SO USE AT UR OWN RISK
+
 step 0. open config.json
 
 step 1. input the information!
