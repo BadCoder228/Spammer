@@ -1,24 +1,14 @@
-from random import shuffle, choice
+from random import choice
 from fake_useragent import UserAgent
-import string
+from string import ascii_letters
 
 
 def randomed(arg=False):
-    lits = []
+    ranchars = []
+
+    [ranchars.append(choice(ascii_letters)) for i in range(9)]
     
-    for i in range(7):
-        toapp_l =[]
-        
-        for i in range(7):
-            sym = list(string.ascii_letters+string.digits)
-            shuffle(sym)
-            toapp = ''.join(sym[:9])
-            toapp_l.append(toapp)
-       
-        else:
-            lits.append(''.join(toapp_l))
-            
-    return choice(lits) if arg else f'{choice(lits)}@gmail.com'
+    return "".join(ranchars) if arg else f'{"".join(ranchars)}@gmail.com'
 
 
 def useragent():
