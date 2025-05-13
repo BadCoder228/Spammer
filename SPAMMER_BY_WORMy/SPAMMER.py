@@ -50,15 +50,15 @@ def _init_(message):
     db.execute('CREATE TABLE IF NOT EXISTS data(un text,pn text,id integer ,st integer, la text, lo text)')
     cure.execute("SELECT * FROM data WHERE id =?", [message.from_user.id])
     fetchone = cure.fetchone()
-    if fetchone is None:
-        agreement = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 Privacy policy',url=url),ty.InlineKeyboardButton(text='✅ Agree',callback_data='init')]])
-        bot.send_message(message.chat.id, '\t🚨 WARNING 🚨\n\nBy pressing "✅ Agree" button, and using this bot, you confirm that you have read the Privacy policy.\n\n👆 DO NOT DELETE BOT\'S MESSAGES(if there\'s no "delete" button)', reply_markup=agreement)
-    elif message.from_user.id in got_id and fetchone is None:
-        bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))  
-    else:
+    if fetchone is not None:
         bot.send_message(message.from_user.id, '💼 You are registered in this bot!', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))
         if message.from_user.id not in uid_bool:
             uid_bool.update([(fetchone[2], bool(int(fetchone[3])))])
+    elif message.from_user.id in got_id:
+        bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]])) 
+    elif fetchone is None:
+        agreement = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 Privacy policy',url=url),ty.InlineKeyboardButton(text='✅ Agree',callback_data='init')]])
+        bot.send_message(message.chat.id, '\t🚨 WARNING 🚨\n\nBy pressing "✅ Agree" button, and using this bot, you confirm that you have read the Privacy policy.\n\n👆 DO NOT DELETE BOT\'S MESSAGES(if there\'s no "delete" button)', reply_markup=agreement)
 
 @bot.message_handler(content_types=['contact'])
 def _postinit_(message):
@@ -105,7 +105,7 @@ def callback(call):
         bot.clear_step_handler_by_chat_id(call.message.chat.id)
         cancel = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]])
         main_keyboard = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🎯 Spam',callback_data='spam'),ty.InlineKeyboardButton(text='📱 Data by users',callback_data='get_data')],[ty.InlineKeyboardButton(text='🔑 Subscription',callback_data='sub'),]])
-        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=f'🎈 Your current destination\'s main menu\n\n🔋 Your status is {"activated" if uid_bool.get(call.from_user.id) else "deactivated"}',reply_markup=main_keyboard)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=f'🎈 Your current destination\'s main menu\n\n🔋 Your subscription is {"activated" if uid_bool.get(call.from_user.id) else "deactivated"}',reply_markup=main_keyboard)
     
     elif call.data == 'spam':
         
