@@ -54,7 +54,7 @@ def _init_(message):
         agreement = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='📃 Privacy policy',url=url),ty.InlineKeyboardButton(text='✅ Agree',callback_data='init')]])
         bot.send_message(message.chat.id, '\t🚨 WARNING 🚨\n\nBy pressing "✅ Agree" button, and using this bot, you confirm that you have read the Privacy policy.\n\n👆 DO NOT DELETE BOT\'S MESSAGES(if there\'s no "delete" button)', reply_markup=agreement)
     elif message.from_user.id in got_id and fetchone is None:
-        bot.send_message(call.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))  
+        bot.send_message(message.from_user.id,'❌ This message may be sent once.',reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))  
     else:
         bot.send_message(message.from_user.id, '💼 You are registered in this bot!', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))
         if message.from_user.id not in uid_bool:
