@@ -20,4 +20,6 @@ async def starting(number):
 
 
 def atack_function(number,laps):
-    for _ in range(int(laps)):a.run(starting(number))
+    a.set_event_loop_policy(a.WindowsSelectorEventLoopPolicy())
+    for _ in range(int(laps)):
+        a.run(starting(number))
